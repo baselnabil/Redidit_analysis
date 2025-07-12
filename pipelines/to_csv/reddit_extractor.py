@@ -26,7 +26,7 @@ def extract_reddit_data(reddit):
     mapped_keys = ('id','subreddit_id','author','selftext','title','over_18','created_utc','clicked')
     for post in subreddit.hot(limit=1):
         posts_dict = vars(post)
-        post_dict = {key : posts_dict[key] for key in mapped_keys}
+        post_dict = {key : posts_dict.get(key) for key in mapped_keys}
         posts.append(post_dict)
     print('data extracted ')
 
@@ -51,9 +51,9 @@ def transform_data(posts):
 
 def load_data(df):
     timestamp = datetime.now().timestamp()
-    path = f'../data/reddit_data_{int(timestamp)}.csv'
-    df.to_csv(path, index=False)
-    print(f'Data loaded to {path}')
+    full_path = os.path.join('/home/basel/main/analyitical_eng/data/',f'reddit_data_{int(timestamp)}.csv')
+    df.to_csv(full_path, index=False)
+    print(f'Data loaded to {full_path}')
 def main():
     reddit = initialize_reddit_client()
     posts = extract_reddit_data(reddit)
