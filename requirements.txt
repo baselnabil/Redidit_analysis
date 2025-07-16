@@ -1,3 +1,4 @@
 pandas
 praw
 python-dotenv
+boto3

@@ -1,61 +1,71 @@
-version: '3'
-
+# Cleaned-up Airflow docker-compose.yaml
 x-airflow-common:
   &airflow-common
-  build:
-    context: .
-    dockerfile: Dockerfile
-  image: custom-airflow:2.7.1-python3.9
-  env_file:
-    - airflow.env
+  build: .
+  image: ${AIRFLOW_IMAGE_NAME:-extending_airflow:latest}
+  environment:
+    &airflow-common-env
+    AIRFLOW__CORE__EXECUTOR: LocalExecutor
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
+    AIRFLOW__CORE__FERNET_KEY: ''
+    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
+    AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+    AIRFLOW__SCHEDULER__MIN_FILE_PROCESS_INTERVAL: 10
   volumes:
-    - ./config:/opt/airflow/config
     - ./dags:/opt/airflow/dags
-    - ./data:/opt/airflow/data
-    - ./etls:/opt/airflow/etls
     - ./logs:/opt/airflow/logs
-    - ./pipelines:/opt/airflow/pipelines
+    - ./data:/opt/airflow/data
     - ./plugins:/opt/airflow/plugins
-    - ./tests:/opt/airflow/tests
-    - ./utils:/opt/airflow/utils
-   # - ./airflow.cfg:/opt/airflow/airflow.cfg
-    - ./requirements.txt:/opt/airflow/requirements.txt
+    - ./etls:/opt/airflow/etls
+
+  user: "${AIRFLOW_UID:-50000}:${AIRFLOW_GID:-0}"
   depends_on:
-    - postgres
-    - redis
+    postgres:
+      condition: service_healthy
 
 services:
   postgres:
-    image: postgres:12
+    image: postgres:13
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: airflow_reddit
-      POSTGRES_PORT: 5432
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    volumes:
+      - postgres-db-volume:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
-
-  redis:
-    image: redis:latest
-    ports:
-      - "6379:6379"
-
-  airflow-init:
-    <<: *airflow-common
-    command: >
-      bash -c "pip install -r /opt/airflow/requirements.txt && airflow db init && airflow db upgrade && airflow users create --username admin --firstname admin --lastname admin --role Admin --email airflow@airflow.com --password admin"
-    restart: "no"
+      - 5432:5432
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "airflow"]
+      interval: 5s
+      retries: 5
+    restart: always
 
   airflow-webserver:
     <<: *airflow-common
     command: webserver
     ports:
-      - "8080:8080"
+      - 8080:8080
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    restart: always
 
   airflow-scheduler:
     <<: *airflow-common
     command: scheduler
+    restart: always
 
-  airflow-worker:
+  airflow-init:
     <<: *airflow-common
-    command: celery worker
+    command: version
+    environment:
+      <<: *airflow-common-env
+      _AIRFLOW_DB_UPGRADE: 'true'
+      _AIRFLOW_WWW_USER_CREATE: 'true'
+      _AIRFLOW_WWW_USER_USERNAME: ${_AIRFLOW_WWW_USER_USERNAME:-airflow}
+      _AIRFLOW_WWW_USER_PASSWORD: ${_AIRFLOW_WWW_USER_PASSWORD:-airflow}
+
+volumes:
+  postgres-db-volume:
