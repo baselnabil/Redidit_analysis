@@ -4,25 +4,28 @@ from dotenv import load_dotenv
 import pandas as pd 
 import os 
 load_dotenv()
+import sys 
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 def initialize_session():
     psql_username = os.getenv('POSTGRES_USERNAME')
     psql_password = os.getenv('POSTGRES_PASSWORD')
     print(psql_password,psql_username)
-    psql_connection_str = f'postgresql://{psql_username}:{psql_password}@localhost:5432/postgres'
+    psql_connection_str = f'postgresql://{psql_username}:{psql_password}@analyitical_eng-postgres-1:5432/postgres'
     
     try:
         psql_engine = create_engine(psql_connection_str)
         psql_session = sessionmaker(bind=psql_engine)
         session = psql_session()
+        print('session initialized')
         return session
     except Exception as e:
         print(e)
         return None
     
 def load_csv(session):
-    load_dir = '/home/basel/main/analyitical_eng/data'
+    load_dir = '/opt/airflow/data'
     files = os.listdir(load_dir)
     print(files)
     for file in files:
@@ -42,6 +45,9 @@ def load_csv(session):
 def main ():
     session= initialize_session()
     if session:
+        
         load_csv(session)
+    else:
+        print('session error ')
 if __name__== '__main__':
     main()

@@ -3,8 +3,9 @@ from dotenv import load_dotenv
 import os
 import pandas as pd
 from datetime import datetime
+import sys
 load_dotenv()
-
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 def initialize_reddit_client():
     try:
         reddit = praw.Reddit(
@@ -51,7 +52,7 @@ def transform_data(posts):
 
 def load_data(df):
     timestamp = datetime.now().timestamp()
-    full_path = os.path.join('/home/basel/main/analyitical_eng/data/',f'reddit_data_{int(timestamp)}.csv')
+    full_path = os.path.join('/opt/airflow/data/',f'reddit_data_{int(timestamp)}.csv')
     df.to_csv(full_path, index=False)
     print(f'Data loaded to {full_path}')
 def main():

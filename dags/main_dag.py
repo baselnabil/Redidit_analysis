@@ -27,15 +27,25 @@ def upload_s3(file):
     bucket_name = 'reddit-analysis-files'
     
     os.rename(file,file[:-5]) ## because the file was marked as .done at the end 
+    new_file = file[:-5]
     curr_month = datetime.datetime.now().month
-    key = f'reddit/{curr_month}/{file.split("/")[-1]}'
+    key = f'reddit/{curr_month}/{new_file.split("/")[-1]}'
 
     try:
-        s3_hook.load_file(filename=file, key=key, bucket_name=bucket_name)
-        print(f'{file} uploaded at {bucket_name}/reddit-{curr_month}')
+        s3_hook.load_file(filename=new_file, key=key, bucket_name=bucket_name)
+        print(f'{new_file} uploaded at {bucket_name}/reddit-{curr_month}')
+
     except ClientError as e :
         print(e)
         return False
+    return new_file
+def delete_file(new_file):
+    if new_file:
+        try:
+            os.remove(new_file)
+            print(f'{new_file} removed')
+        except:
+            print('error removing the file')
 
 def upload_delete():
     dir='/opt/airflow/data'
@@ -43,15 +53,15 @@ def upload_delete():
     for file in files :
         if file.endswith('.done'):
             print('csv file is found')
-            upload_s3(os.path.join(dir,file))
-            os.remove(os.path.join(dir,file))
+            new_file = upload_s3(os.path.join(dir,file))
+            delete_file(new_file)
 with DAG(
     dag_id = 'reddit_ETL',
     start_date = datetime.datetime(2025,7,7),
     schedule_interval= '@daily',
     catchup= False
 ) as dag:
-    sense_file = PythonSensor(
+    check_for_file = PythonSensor(
         task_id = 'sense_file',
         python_callable = check_file,
         poke_interval=60,
@@ -59,7 +69,7 @@ with DAG(
         mode='poke'
     )
     process_csv = PythonOperator(
-        task_id = 'check_csv',
+        task_id = 'process_csv',
         python_callable = upload_delete
     )
     etl_to_csv = PythonOperator(
@@ -70,6 +80,5 @@ with DAG(
         task_id = 'load_to_db',
         python_callable = psql_load.main
     )
-    etl_to_csv>>sense_file>>process_csv
-    etl_to_csv>> load_to_db
+    etl_to_csv>> load_to_db >> check_for_file>>process_csv
 
