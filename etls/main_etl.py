@@ -25,7 +25,7 @@ def extract_reddit_data(reddit):
     subreddit = reddit.subreddit("dataengineering")
     posts=[]
     mapped_keys = ('id','subreddit_id','author','selftext','title','over_18','created_utc','clicked')
-    for post in subreddit.hot(limit=1):
+    for post in subreddit.hot(limit=100):
         posts_dict = vars(post)
         post_dict = {key : posts_dict.get(key) for key in mapped_keys}
         posts.append(post_dict)

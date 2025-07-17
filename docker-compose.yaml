@@ -17,6 +17,7 @@ x-airflow-common:
     - ./data:/opt/airflow/data
     - ./plugins:/opt/airflow/plugins
     - ./etls:/opt/airflow/etls
+    - ./config:/opt/airflow/config
 
   user: "${AIRFLOW_UID:-50000}:${AIRFLOW_GID:-0}"
   depends_on:
