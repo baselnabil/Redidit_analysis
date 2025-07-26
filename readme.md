@@ -1,11 +1,11 @@
 
-# Reddit Data Engineering ETL Pipeline 🚀
+# Reddit Data Engineering ETL Pipeline 
 
 This project is a complete ETL (Extract, Transform, Load) pipeline built to analyze data from the r/dataengineering subreddit. It uses Apache Airflow for orchestration, Docker for containerization, and various Python scripts for data handling and analysis.
 
 ---
 
-## ✨ Features
+##  Features
 
 * **Data Extraction**: Fetches the top posts from the r/dataengineering subreddit using the Reddit API (PRAW).
 * **Data Storage**: Loads the extracted data into a PostgreSQL database for querying and analysis.
@@ -16,7 +16,7 @@ This project is a complete ETL (Extract, Transform, Load) pipeline built to anal
 
 ---
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 * **Orchestration**: Apache Airflow
 * **Containerization**: Docker & Docker Compose
@@ -28,7 +28,7 @@ This project is a complete ETL (Extract, Transform, Load) pipeline built to anal
 
 ---
 
-## 📂 Project Structure
+## Project Structure
 
 ```
 
@@ -53,7 +53,7 @@ This project is a complete ETL (Extract, Transform, Load) pipeline built to anal
 
 ---
 
-## 📊 Pipeline Workflow
+##  Pipeline Workflow
 
 The main Airflow DAG (`reddit_ETL`) orchestrates the following tasks in sequence:
 
@@ -65,7 +65,7 @@ The main Airflow DAG (`reddit_ETL`) orchestrates the following tasks in sequence
 
 ---
 
-## ⚙️ Setup and Installation
+## Setup and Installation
 
 1.  **Clone the Repository**
     ```bash
@@ -104,5 +104,3 @@ The main Airflow DAG (`reddit_ETL`) orchestrates the following tasks in sequence
 4.  **Access Airflow & Dashboard**
     * **Airflow UI**: Open your web browser and go to `http://localhost:8080`. The default login is `airflow` / `airflow`.
     * **Dashboard**: After a successful DAG run, the generated dashboard can be found in the `plugins/dashboards.html` file on your local machine.
-
-````
