@@ -7,11 +7,11 @@ load_dotenv()
 import sys 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+load_dir = '/opt/airflow/data'
 
 def initialize_session():
     psql_username = os.getenv('POSTGRES_USERNAME')
     psql_password = os.getenv('POSTGRES_PASSWORD')
-    print(psql_password,psql_username)
     psql_connection_str = f'postgresql://{psql_username}:{psql_password}@analyitical_eng-postgres-1:5432/postgres'
     
     try:
@@ -24,8 +24,11 @@ def initialize_session():
         print(e)
         return None
     
+
+def create_check_columns(session):
+    pass
+
 def load_csv(session):
-    load_dir = '/opt/airflow/data'
     files = os.listdir(load_dir)
     print(files)
     for file in files:
@@ -41,6 +44,7 @@ def load_csv(session):
 
             except Exception as e :
                 print(e)
+                return False
 
 def main ():
     session= initialize_session()

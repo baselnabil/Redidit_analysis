@@ -8,6 +8,7 @@ from airflow.operators.python import PythonOperator
 from airflow.providers.amazon.aws.hooks.s3 import S3Hook
 from airflow.sensors.python import PythonSensor
 from airflow.sensors.filesystem import FileSensor
+from plugins import analytics
 import datetime
 from etls import main_etl
 from etls import psql_load
@@ -19,7 +20,7 @@ from etls import file_sensoring
 with DAG(
     dag_id = 'reddit_ETL',
     start_date = datetime.datetime(2025,7,7),
-    schedule_interval= '@daily',
+    schedule_interval= '@monthly',
     catchup= False
 ) as dag:
     wait_for_file = PythonSensor(
@@ -30,7 +31,7 @@ with DAG(
         mode='poke'
     )
     load_to_db = PythonOperator(
-        task_id = 'process_csv',
+        task_id = 'load_to_db',
         python_callable = psql_load.main
     )
     extract_data = PythonOperator(
@@ -41,5 +42,9 @@ with DAG(
         task_id = 'upload_to_s3',
         python_callable = s3_etl.main
     )
-    extract_data>> load_to_db >> wait_for_file>>upload_to_s3
+    create_dashboard = PythonOperator(
+        task_id = 'create_dashboard',
+        python_callable = analytics.Dashboard.subplots()
+    )
+    extract_data>> load_to_db >> wait_for_file>>upload_to_s3>> create_dashboard
 

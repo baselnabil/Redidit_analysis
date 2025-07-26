@@ -5,8 +5,6 @@ import os
 import datetime
 import logging
 
-from airflow.models import Variable
-
 # Logging instead of print for Airflow compatibility
 log = logging.getLogger(__name__)
 
