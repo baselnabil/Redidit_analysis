@@ -51,6 +51,9 @@ This project is a complete ETL (Extract, Transform, Load) pipeline built to anal
 
 ````
 
+
+![alt text](images/image.png)
+![alt text](images/image%20copy.png)
 ---
 
 ##  Pipeline Workflow

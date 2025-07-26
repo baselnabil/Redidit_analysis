@@ -23,7 +23,7 @@ class Dashboard:
     def initialize_session():
         psql_username = parser.get('Database', 'POSTGRES_USERNAME')
         psql_password = parser.get('Database', 'POSTGRES_PASSWORD')
-        psql_connection_str = f'postgresql://{psql_username}:{psql_password}@analyitical_eng-postgres-1:5432/postgres'
+        psql_connection_str = f'postgresql://{psql_username}:{psql_password}@localhost:5432/postgres'
 
         try:
             engine = create_engine(psql_connection_str)
@@ -125,7 +125,8 @@ class Dashboard:
             height=800,
             showlegend=False
         ) 
-        fig.write_html('/opt/airflow/plugins/dashboards.html')
+        fig.show()
+        # fig.write_html('/opt/airflow/plugins/dashboards.html')
         
 if __name__== '__main__':
     dashboard = Dashboard()
