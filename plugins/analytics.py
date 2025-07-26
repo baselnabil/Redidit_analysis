@@ -23,7 +23,7 @@ class Dashboard:
     def initialize_session():
         psql_username = parser.get('Database', 'POSTGRES_USERNAME')
         psql_password = parser.get('Database', 'POSTGRES_PASSWORD')
-        psql_connection_str = f'postgresql://{psql_username}:{psql_password}@localhost:5432/postgres'
+        psql_connection_str = f'postgresql://{psql_username}:{psql_password}@analyitical_eng-postgres-1:5432/postgres'
 
         try:
             engine = create_engine(psql_connection_str)
@@ -115,12 +115,16 @@ class Dashboard:
         fig.add_trace(self.scatter_trace, row=2, col=1)
 
         fig.update_layout(
+            title={
+                'text': "<b>Reddit Post Insights Dashboard</b>",
+                'x': 0.5, 
+                'xanchor': 'center',
+                'font': dict(size=24, family='Arial', color='black')
+            },
+            font=dict(size=12, family='Arial'),
             height=800,
-            title_text="Reddit Post Insights Dashboard",
-            title_x=0.5,
             showlegend=False
-        )
-        
+        ) 
         fig.write_html('/opt/airflow/plugins/dashboards.html')
         
 if __name__== '__main__':

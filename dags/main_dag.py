@@ -44,7 +44,7 @@ with DAG(
     )
     create_dashboard = PythonOperator(
         task_id = 'create_dashboard',
-        python_callable = analytics.Dashboard.subplots()
+        python_callable = analytics.Dashboard().subplots
     )
     extract_data>> load_to_db >> wait_for_file>>upload_to_s3>> create_dashboard
 
